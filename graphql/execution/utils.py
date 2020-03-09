@@ -148,9 +148,13 @@ class ExecutionContext(object):
 
     def report_error(self, error, traceback=None):
         # type: (Exception, Optional[TracebackType]) -> None
+        traceback =  getattr(error, "stack", None) or traceback
+        original_error = getattr(error, "original_error", error)
+
+        # Send original exception to logger, not GraphQL wrapped one
         logger.exception(
-            error,
-            exc_info=(type(error), error, getattr(error, "stack", None) or traceback),
+            original_error,
+            exc_info=(type(original_error), original_error, traceback),
         )
         self.errors.append(error)
 
